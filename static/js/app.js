@@ -1,46 +1,57 @@
-// import the data from data.js
+// from data.js
 const tableData = data;
-// Reference the html table using d3
-var tbody = d3.select ("tbody");
-function buildtable(data) {
-    //first clear out any existing data
-    tbody.html("");
-    //Next, loop through each object in the data
-    //and append a row and cells for each value in the row
-    data.forEach((dataRow) => {
-        //Append a row to the table body
-        let row = tbody.append("tr");
-        //Loop through each filed in the dataRow and add
-        // each value as a table cell (td)
-    Object.values(dataRow).forEach((val)=> {
-        let cell = row.append("td");
+// get table references
+var tbody = d3.select("tbody");
+function buildTable(data) {
+  // First, clear out any existing data
+  tbody.html("");
+  // Next, loop through each object in the data
+  // and append a row and cells for each value in the row
+  data.forEach((dataRow) => {
+    // Append a row to the table body
+    let row = tbody.append("tr");
+    // Loop through each field in the dataRow and add
+    // each value as a table cell (td)
+    Object.values(dataRow).forEach((val) => {
+      let cell = row.append("td");
         cell.text(val);
-        }
-      );
-    });
+      }
+    );
+  });
 }
-function handleClick() {
-    //Grab the datatime value from the filter
-    let date = d3.select("#datetime").property("value");
-    let filteredData = tableData;
-    //check to see if a date was entered and filter the
-    // data using that date.
-    //apply 'filter method to the table data to only keep the
-    //row where the 'datetime' value matcheds the filter value
-    if (date) {
-        filteredData = filteredData.filter(row => row.datetime === date);
-    };
-    //rebuild the table using the filtered data
-    //@Note : If no date ws entered, then filteredData will
-    //just be the original tableData. here call the buildtable function with
-    //filtered data
-    buildtable(filteredData);
+//CHALLENGE AREA keep track of all filters--Date, City, State, Country and Shape
+let filters ={};
+
+function updateFilters() {
+  //save the element, value and id of the filter that was changed
+let grabme = d3.select(this);
+let elementid = grabme.attr("id");
+let values=grabme.property("value");
+  //If a filter values was entered into input box then add that filterId and value
+//call function to apply all filters and rebuild the table
+//filterTable(updateFilters);
+//let date = d3.select("#datetime").property("value");
+//others go here
+if(values !="") {
+  filters[elementid]= values;
 }
-//Attach an event to listen for the form button to be clicked on
-d3.selectAll("filter-btn").on("click", handleClick);
-//Build the table when the page loads
-buildtable(tableData);
+else{
+  delete filters[elementid];
+}
+filterTable();}
 
+function filterTable() {
+//set the filteredData to the tableData
+var filterdata=tableData;
+Object.entries(filters).forEach(([key, value])=>{
+  filterdata=filterdata.filter(row=>row[key]===value)
+})
+//call function fo apply all filters and rebuild the data
+buildTable(filterdata);
 
+}
 
-
+// Attach an event to listen for the form button
+d3.selectAll("#filter-btn").on("click", updateFilters);
+// Build the table when the page loads
+buildTable(tableData);
